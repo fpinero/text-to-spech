@@ -49,6 +49,13 @@ def convert_docx_to_mp3():
         # add the current audio chunk to the stream
         stream += response['AudioStream'].read()
 
+        # Print the progress
+        sys.stdout.write(f'\rProcessing chunk {i}/{len(chunks)}...')
+        sys.stdout.flush()  # Asegúrate de que el mensaje se imprima inmediatamente
+
+    # Print a newline character to ensure the next print statement is on a new line
+    sys.stdout.write('\n')
+
     # save the audio stream to a file
     with open(mp3_output, 'wb') as f:
         f.write(stream)
