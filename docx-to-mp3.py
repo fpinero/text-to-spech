@@ -43,14 +43,19 @@ def convert_docx_to_mp3():
     stream = bytearray()
 
     for i, chunk in enumerate(chunks, start=1):
+        print(f"Chunk {i}: {chunk}")  # Imprime el fragmento de texto actual
         ssml_text = f'<speak><prosody rate="{rate}">{chunk}</prosody></speak>'
-        response = polly_client.synthesize_speech(VoiceId=voice_id,
-                                                  OutputFormat='mp3',
-                                                  TextType='ssml',
-                                                  Text=ssml_text)
-        stream += response['AudioStream'].read()
-        sys.stdout.write(f'\rProcessing chunk {i}/{len(chunks)}...')
-        sys.stdout.flush()
+        try:
+            response = polly_client.synthesize_speech(VoiceId=voice_id,
+                                                      OutputFormat='mp3',
+                                                      TextType='ssml',
+                                                      Text=ssml_text)
+            stream += response['AudioStream'].read()
+            sys.stdout.write(f'\rProcessing chunk {i}/{len(chunks)}...')
+            sys.stdout.flush()
+        except botocore.exceptions.ClientError as e:
+            print(f"\nError en el chunk {i}: {e}")
+            break  # Interrumpe el bucle si hay un error
 
     sys.stdout.write('\n')
 
