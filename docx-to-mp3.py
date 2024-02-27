@@ -1,6 +1,7 @@
 import boto3
 from docx import Document
 import sys  # Importamos sys para poder terminar la ejecución con sys.exit()
+import botocore.exceptions  # Añadimos la importación necesaria para manejar excepciones de botocore
 
 
 def read_docx(file_path):
@@ -26,6 +27,22 @@ def choose_voice_and_rate():
     return voices.get(choice, ('Lucia', '85%'))  # Devuelve 'Lucia' y '85%' como valores predeterminados
 
 
+def split_text(text, max_length):
+    chunks = []
+    while text:
+        if len(text) <= max_length:
+            chunks.append(text)
+            break
+        else:
+            # Buscamos el último espacio en blanco antes del límite de longitud
+            split_index = text.rfind(' ', 0, max_length)
+            if split_index == -1:  # No se encontró un espacio, cortamos en el límite máximo
+                split_index = max_length
+            chunks.append(text[:split_index])
+            text = text[split_index + 1:]  # +1 para no incluir el espacio en el nuevo fragmento
+    return chunks
+
+
 def convert_docx_to_mp3():
     file_path = input('Please enter the path to the Word document or type "exit" to abort: ')
 
@@ -39,7 +56,7 @@ def convert_docx_to_mp3():
     mp3_output = file_path.rsplit('.', 1)[0] + '.mp3'
     polly_client = boto3.Session(region_name='eu-central-1').client('polly')
     max_chunk_len = 1000
-    chunks = [text[i:i + max_chunk_len] for i in range(0, len(text), max_chunk_len)]
+    chunks = split_text(text, max_chunk_len)
     stream = bytearray()
 
     for i, chunk in enumerate(chunks, start=1):
