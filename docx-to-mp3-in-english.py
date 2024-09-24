@@ -9,13 +9,15 @@ def read_docx(file_path):
     full_text = []
     for paragraph in doc.paragraphs:
         full_text.append(paragraph.text)
+    # Replace ampersands '&' with 'and' to avoid Polly exceptions
+    full_text = [text.replace('&', 'and') for text in full_text]
     return ' '.join(full_text)
 
 
 def choose_voice_and_rate():
     # Opciones de voces en inglés de Amazon Polly
     voices = {
-        'a': ('Matthew', '80%'),
+        'a': ('Matthew', '85%'),
         'b': ('Joanna', '90%'),
         'c': ('Amy', '85%')
     }

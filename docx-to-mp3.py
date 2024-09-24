@@ -9,6 +9,8 @@ def read_docx(file_path):
     full_text = []
     for paragraph in doc.paragraphs:
         full_text.append(paragraph.text)
+    # Replace ampersands '&' with 'and' to avoid Polly exceptions
+    full_text = [text.replace('&', 'and') for text in full_text]
     return ' '.join(full_text)
 
 
