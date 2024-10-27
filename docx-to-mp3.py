@@ -2,10 +2,19 @@ import boto3
 from docx import Document
 import sys  # Importamos sys para poder terminar la ejecución con sys.exit()
 import botocore.exceptions  # Añadimos la importación necesaria para manejar excepciones de botocore
+import os
 
 
 def read_docx(file_path):
-    doc = Document(file_path)
+    # Clean the file path but preserve intentional spaces in directory/file names
+    cleaned_path = file_path.strip().strip("'").strip('"')
+    # Handle path with spaces correctly
+    cleaned_path = os.path.expanduser(os.path.expandvars(cleaned_path))
+
+    if not os.path.exists(cleaned_path):
+        raise FileNotFoundError(f"The file '{cleaned_path}' does not exist")
+
+    doc = Document(cleaned_path)
     full_text = []
     for paragraph in doc.paragraphs:
         full_text.append(paragraph.text)
@@ -85,3 +94,6 @@ def convert_docx_to_mp3():
 
 
 convert_docx_to_mp3()
+
+
+
