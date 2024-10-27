@@ -64,7 +64,11 @@ def convert_docx_to_mp3():
     voice_id, rate = choose_voice_and_rate()
 
     text = read_docx(file_path)
-    mp3_output = file_path.rsplit('.', 1)[0] + '.mp3'
+    # Clean and normalize the output path
+    cleaned_path = file_path.strip().strip("'").strip('"')
+    cleaned_path = os.path.expanduser(os.path.expandvars(cleaned_path))
+    mp3_output = cleaned_path.rsplit('.', 1)[0] + '.mp3'
+
     polly_client = boto3.Session(region_name='eu-central-1').client('polly')
     max_chunk_len = 1000
     chunks = split_text(text, max_chunk_len)
@@ -91,7 +95,6 @@ def convert_docx_to_mp3():
         f.write(stream)
 
     print(f'Conversion completed. MP3 output saved as {mp3_output}')
-
 
 convert_docx_to_mp3()
 
