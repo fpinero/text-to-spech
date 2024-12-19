@@ -5,6 +5,21 @@ import botocore.exceptions  # Añadimos la importación necesaria para manejar e
 import os
 
 
+def sanitize_ssml_text(text):
+    # Replace XML special characters
+    replacements = {
+        '&': 'and',
+        '<': ' less than ',
+        '>': ' greater than ',
+        '"': ' quote ',
+        "'": ' apostrophe ',
+        # Add more replacements if needed
+    }
+    for char, replacement in replacements.items():
+        text = text.replace(char, replacement)
+    return text
+
+
 def read_docx(file_path):
     # Clean the file path but preserve intentional spaces in directory/file names
     cleaned_path = file_path.strip().strip("'").strip('"')
@@ -53,7 +68,6 @@ def split_text(text, max_length):
             text = text[split_index + 1:]  # +1 para no incluir el espacio en el nuevo fragmento
     return chunks
 
-
 def convert_docx_to_mp3():
     file_path = input('Please enter the path to the Word document or type "exit" to abort: ')
 
@@ -76,7 +90,8 @@ def convert_docx_to_mp3():
 
     for i, chunk in enumerate(chunks, start=1):
         print(f"Chunk {i}: {chunk}")  # Imprime el fragmento de texto actual
-        ssml_text = f'<speak><prosody rate="{rate}">{chunk}</prosody></speak>'
+        sanitized_chunk = sanitize_ssml_text(chunk)
+        ssml_text = f'<speak><prosody rate="{rate}">{sanitized_chunk}</prosody></speak>'
         try:
             response = polly_client.synthesize_speech(VoiceId=voice_id,
                                                       OutputFormat='mp3',
@@ -96,7 +111,7 @@ def convert_docx_to_mp3():
 
     print(f'Conversion completed. MP3 output saved as {mp3_output}')
 
-convert_docx_to_mp3()
 
+convert_docx_to_mp3()
 
 
