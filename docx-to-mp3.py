@@ -6,6 +6,11 @@ import os
 
 
 def sanitize_ssml_text(text):
+    """
+    Sanitizes the SSML (Speech Synthesis Markup Language) text in the given chunk to ensure it is properly formatted for use with the Amazon Polly text-to-speech service.
+
+    This function replaces XML special characters with their text equivalents to avoid parsing errors.
+    """
     # Replace XML special characters
     replacements = {
         '&': 'y',
@@ -21,6 +26,12 @@ def sanitize_ssml_text(text):
 
 
 def read_docx(file_path):
+    """
+    Reads the content of a Word document (.docx) file and returns it as a single string.
+
+    Args:
+        file_path (str): The path to the .docx file.
+    """
     # Clean the file path but preserve intentional spaces in directory/file names
     cleaned_path = file_path.strip().strip("'").strip('"')
     # Handle path with spaces correctly
@@ -39,6 +50,10 @@ def read_docx(file_path):
 
 
 def choose_voice_and_rate():
+    """
+    Presents the user with a choice of voices and their corresponding speech rates,
+    and returns the selected voice and rate.
+    """
     voices = {
         'a': ('Lucia', '85%'),
         'b': ('Conchita', '99%'),
@@ -54,6 +69,14 @@ def choose_voice_and_rate():
 
 
 def split_text(text, max_length):
+    """
+    Splits a given text into chunks of a maximum length, trying to split at spaces
+    to avoid cutting words in half.
+
+    Args:
+        text (str): The text to split.
+        max_length (int): The maximum length of each chunk.
+    """
     chunks = []
     while text:
         if len(text) <= max_length:
@@ -70,12 +93,15 @@ def split_text(text, max_length):
 
 
 def convert_docx_to_mp3():
+    """
+    Converts a Word document (.docx) to an MP3 audio file using Amazon Polly.
+    It prompts the user for the file path, voice, and then performs the conversion.
+    """
     file_path = input('Please enter the path to the Word document or type "exit" to abort: ')
 
     if file_path.lower() == 'exit':
         print('Program aborted by the user.')
         sys.exit()
-
     voice_id, rate = choose_voice_and_rate()
 
     text = read_docx(file_path)
@@ -83,6 +109,10 @@ def convert_docx_to_mp3():
     cleaned_path = file_path.strip().strip("'").strip('"')
     cleaned_path = os.path.expanduser(os.path.expandvars(cleaned_path))
     mp3_output = cleaned_path.rsplit('.', 1)[0] + '.mp3'
+
+    # Check if the output file exists and delete it if it does
+    if os.path.exists(mp3_output):
+        os.remove(mp3_output)
 
     polly_client = boto3.Session(region_name='eu-central-1').client('polly')
     max_chunk_len = 1000
