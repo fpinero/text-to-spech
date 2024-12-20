@@ -8,11 +8,11 @@ import os
 def sanitize_ssml_text(text):
     # Replace XML special characters
     replacements = {
-        '&': 'and',
-        '<': ' less than ',
-        '>': ' greater than ',
-        '"': ' quote ',
-        "'": ' apostrophe ',
+        '&': 'y',
+        '<': ' menor que ',
+        '>': ' mayor que ',
+        '"': ' comillas ',
+        "'": ' apostrofe ',
         # Add more replacements if needed
     }
     for char, replacement in replacements.items():
@@ -67,6 +67,7 @@ def split_text(text, max_length):
             chunks.append(text[:split_index])
             text = text[split_index + 1:]  # +1 para no incluir el espacio en el nuevo fragmento
     return chunks
+
 
 def convert_docx_to_mp3():
     file_path = input('Please enter the path to the Word document or type "exit" to abort: ')
